@@ -29,6 +29,7 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CabinetColors));
       this.rbFire = new System.Windows.Forms.RadioButton();
       this.rbAlien = new System.Windows.Forms.RadioButton();
       this.rbStars = new System.Windows.Forms.RadioButton();
@@ -137,6 +138,7 @@
       this.Controls.Add(this.rbStars);
       this.Controls.Add(this.rbAlien);
       this.Controls.Add(this.rbFire);
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.Name = "CabinetColors";
       this.Text = "Cabinet Colors";
       this.Paint += new System.Windows.Forms.PaintEventHandler(this.CabinetColors_Paint);

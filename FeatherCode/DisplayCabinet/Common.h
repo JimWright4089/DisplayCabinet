@@ -29,7 +29,7 @@ typedef unsigned long uint32_t;
 //----------------------------------------------------------------------------
 //  Global Constants
 //----------------------------------------------------------------------------
-const uint8  MAX_LEDS            = 46;
+const int    MAX_LEDS            = 46;
 const int    MAX_LINES           = 62;
 const int    MAX_SHELFS          =  8;
 const int    MAX_UNITS           =  2;
@@ -39,14 +39,14 @@ const int SOLID_BLUE   =  1;
 const int SOLID_GREEN  =  2;
 const int SOLID_ORANGE =  3;
 const int SOLID_PURPLE =  4;
-const int SOLID_YELLOW =  5;
-const int SOLID_RED    =  6;
-const int SOLID_WHITE  =  7;
-const int ANIM_FIRE    =  8;
-const int ANIM_LAVA    =  9;
-const int ANIM_STARS   = 10;
-const int ANIM_ALIEN   = 11;
-const int ANIM_OCEAN   = 12;
+const int SOLID_RED    =  5;
+const int SOLID_WHITE  =  6;
+const int SOLID_YELLOW =  7;
+const int ANIM_ALIEN   =  8;
+const int ANIM_FIRE    =  9;
+const int ANIM_LAVA    = 10;
+const int ANIM_OCEAN   = 11;
+const int ANIM_STARS   = 12;
 const int ANIM_SWAMP   = 13;
 
 const uint32 COLOR_WHITE   = 0x00FFFFFF;

@@ -1,18 +1,38 @@
 <?php
+//----------------------------------------------------------------------------
+//
+//  $Workfile: index.php$
+//
+//  $Revision: 126$
+//
+//  Project:    Display Cabinet
+//
+//                            Copyright (c) 2017
+//                               Jim Wright
+//                            All Rights Reserved
+//
+//  Modification History:
+//  $Log:
+//  $
+//
+//----------------------------------------------------------------------------
   $statusmsg = "";
   $rcv_message = "";
 
+  // If there is a shelf to save
   if(isset($_POST['tShelfID']))
   {
-    publish_message($_POST["tShelfValue"], $_POST["tShelfID"], 'localhost', 1883, 5);
+    PublishMessage($_POST["tShelfValue"], $_POST["tShelfID"], 'localhost', 1883, 5);
   }
 
   $shelfs = array(0,0,0,0,0,0,0,0,0,0,0,0);
   $allamps = 0;
 
-  read_topic('unit1/#', 'localhost', 1883, 60, 2);	
-  read_topic('unit2/#', 'localhost', 1883, 60, 1);	
-  read_topic('allamps', 'localhost', 1883, 60, 1);	
+  ReadTopic('unit1/#', 'localhost', 1883, 60, 2);	
+  ReadTopic('unit2/#', 'localhost', 1883, 60, 1);	
+  ReadTopic('allamps', 'localhost', 1883, 60, 1);	
+
+  // Send the values to t he java  script side
   echo '<script type="text/javascript">'."\r\n";
   echo 'var shelfs = [';
   
@@ -29,12 +49,19 @@
   echo 'allamps='.$allamps;
   echo';</script>';
 
-  function publish_message($msg, $topic, $server, $port, $keepalive)
+  //--------------------------------------------------------------------
+  // Purpose:
+  //     Send a message to the MQTT server
+  //
+  // Notes:
+  //     None.
+  //--------------------------------------------------------------------
+  function PublishMessage($msg, $topic, $server, $port, $keepalive)
   {
     $client = new Mosquitto\Client();
-    $client->onConnect('connect');
-    $client->onDisconnect('disconnect');
-    $client->onPublish('publish');
+    $client->onConnect('ConnectMessage');
+    $client->onDisconnect('DisconnectCallback');
+    $client->onPublish('PublishMessage');
     $client->connect($server, $port, $keepalive);
 
     try 
@@ -50,16 +77,23 @@
     }
 
     $client->disconnect();
-    unset($client);					    
+    unset($client);
   }
 
-  function read_topic($topic, $server, $port, $keepalive, $timeout)
+  //--------------------------------------------------------------------
+  // Purpose:
+  //     Retreive the mqtt data
+  //
+  // Notes:
+  //     None.
+  //--------------------------------------------------------------------
+  function ReadTopic($topic, $server, $port, $keepalive, $timeout)
   {
     $client = new Mosquitto\Client();
-    $client->onConnect('connect');
-    $client->onDisconnect('disconnect');
-    $client->onSubscribe('subscribe');
-    $client->onMessage('message');
+    $client->onConnect('ConnectMessage');
+    $client->onDisconnect('DisconnectCallback');
+    $client->onSubscribe('SubscribeCallback');
+    $client->onMessage('MessageCallback');
     $client->connect($server, $port, $keepalive);
     $client->subscribe($topic, 2);
 
@@ -81,7 +115,14 @@
     unset($client);
   }
 
-  function connect($r) 
+  //--------------------------------------------------------------------
+  // Purpose:
+  //     Display the connection messages
+  //
+  // Notes:
+  //     None.
+  //--------------------------------------------------------------------
+  function ConnectMessage($r) 
   {
     if($r == 1)
     {
@@ -98,25 +139,40 @@
       echo "{$r}-Connection refused (broker unavailable )|";        
     }
   }
- 
-  function publish() 
-  {
-    global $client;
-  }
- 
-  function disconnect() 
+  
+  //--------------------------------------------------------------------
+  // Purpose:
+  //     Disconnect callback
+  //
+  // Notes:
+  //     None.
+  //--------------------------------------------------------------------
+  function DisconnectCallback() 
   {
     // no body
   }
 
-
-  function subscribe() 
+  //--------------------------------------------------------------------
+  // Purpose:
+  //     Subscribe callback
+  //
+  // Notes:
+  //     None.
+  //--------------------------------------------------------------------
+  function SubscribeCallback() 
   {
     //**Store the status to a global variable - debug purposes 
     $GLOBALS['statusmsg'] = $GLOBALS['statusmsg'] . "SUB-OK|";
   }
-
-  function message($message) 
+  
+  //--------------------------------------------------------------------
+  // Purpose:
+  //     Parse the message and fill in the array
+  //
+  // Notes:
+  //     None.
+  //--------------------------------------------------------------------
+  function MessageCallback($message) 
   {
     global $shelfs;
     global $allamps;
@@ -136,7 +192,6 @@
   }
 ?>
 
-
 <html>
   <head>
     <meta charset="UTF-8">
@@ -150,6 +205,7 @@
 
       var iconSelectors = [];
 
+      // Setup a selector 
       window.onload = function(){
       var theParams = {'selectedIconWidth':100,
       'selectedIconHeight':62,
@@ -160,6 +216,7 @@
       'vectoralIconNumber':4,
       'horizontalIconNumber':4};
 
+      // Setup the unit/shelf array 
       iconSelectors.push(new IconSelect("Unit1Shelf1",theParams,"unit1/shelf1"));
       iconSelectors.push(new IconSelect("Unit1Shelf2",theParams,"unit1/shelf2"));
       iconSelectors.push(new IconSelect("Unit1Shelf3",theParams,"unit1/shelf3"));
@@ -173,6 +230,7 @@
       iconSelectors.push(new IconSelect("Unit2Shelf5",theParams,"unit2/shelf5"));
       iconSelectors.push(new IconSelect("Unit2Shelf6",theParams,"unit2/shelf6"));
 
+      // Load in the icons
       var icons1 = [];
       icons1.push({'iconFilePath':'images/Off.jpg',    'iconValue':'01'});
       icons1.push({'iconFilePath':'images/Blue.jpg',   'iconValue':'02'});
@@ -196,6 +254,7 @@
 
         var cb = document.getElementById(iconSelectors[i].getID());
         cb.addEventListener('changed', 
+          // Inline function for selecting the icon
           function (e) 
           { 
             for (j = 0; j < iconSelectors.length; j++) 
@@ -205,7 +264,7 @@
                 var theForm, newInput1, newInput2;
                 // Start by creating a <form>
                 theForm = document.createElement('form');
-                theForm.action = '/Cabinet/Cabinet.php';
+                theForm.action = 'index.php';
                 theForm.method = 'post';
                 // Next create the <input>s in the form and give them names and values
                 newInput1 = document.createElement('input');
@@ -289,7 +348,7 @@
                 // Do nothing
               }
           </script>
-          Amps
+          mAmps
         </td>
       </tr>
     </table>
