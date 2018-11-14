@@ -83,9 +83,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Alien.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Ocean.bmp" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +98,7 @@
     <None Include="Space.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Alien.bmp" />
     <Content Include="CabinetColors.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
